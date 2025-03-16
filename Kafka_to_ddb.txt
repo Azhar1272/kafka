@@ -1,0 +1,65 @@
+Step 1: setup Kafka   -- already setup
+
+step 2: pip install kafka-python
+		pip install kafka-python boto3
+
+step 3: create producer.py ( topic name is "demo_testing", bootstrap_servers='127.0.0.1:9092')
+
+from kafka import KafkaProducer
+import json
+import time
+
+producer = KafkaProducer(
+    bootstrap_servers='127.0.0.1:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
+
+for i in range(10):
+    data = {"id": i, "name": f"user_{i}", "timestamp": int(time.time())}  # Convert timestamp to integer
+    producer.send('demo_testing', value=data)
+    print(f"Sent: {data}")
+    time.sleep(1)
+
+producer.flush()
+
+step 4: Create a DynamoDB Table in AWS Console.
+
+		Name: kafkaData
+		Primary Key: id (Number)
+
+step 5: pip install boto3
+
+step 6: aws configure
+		Provide Access Key, Secret Key, Region.
+		
+step 7: create consumer.py
+
+from kafka import KafkaConsumer
+import boto3
+import json
+
+# AWS DynamoDB
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+table = dynamodb.Table('kafkaData')
+
+# Kafka Consumer
+consumer = KafkaConsumer(
+    'my-topic',
+    bootstrap_servers='localhost:9092',
+    auto_offset_reset='earliest',
+    enable_auto_commit=True,
+    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+)
+
+for message in consumer:
+    data = message.value
+    table.put_item(Item=data)
+    print(f"Inserted: {data}")
+
+
+
+step 8: python3 producer.py
+		python3 consumer.py
+
+Producer sends messages to Kafka.
+Consumer reads messages and writes them to DynamoDB.
