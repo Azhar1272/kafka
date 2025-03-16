@@ -1,0 +1,85 @@
+# Kafka Commands Cheat Sheet (Docker Setup)
+
+## Kafka Configuration
+- **Kafka Topic Name:** `openweather_data`
+- **Kafka Docker Container Name:** `docker-kafka-1`
+- **Bootstrap Server:** `kafka:9092` (inside Docker) / `localhost:9092` (outside Docker)
+
+
+## 1. Check if Kafka Container is Running
+
+docker ps | grep docker-kafka-1
+
+- If not running, start it:
+
+docker start docker-kafka-1
+
+
+
+## 2. List All Kafka Topics
+
+docker exec -it docker-kafka-1 kafka-topics.sh --bootstrap-server kafka:9092 --list
+
+
+## 3. Describe a Kafka Topic
+
+docker exec -it docker-kafka-1 kafka-topics.sh --bootstrap-server kafka:9092 --describe --topic openweather_data
+
+
+## 4. Create a Kafka Topic
+
+docker exec -it docker-kafka-1 kafka-topics.sh --bootstrap-server kafka:9092 --create --topic openweather_data --partitions 3 --replication-factor 1
+
+
+## 5. Delete a Kafka Topic
+
+docker exec -it docker-kafka-1 kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic openweather_data
+
+
+## 6. Produce Messages to Kafka Topic
+
+docker exec -it docker-kafka-1 kafka-console-producer.sh --broker-list kafka:9092 --topic openweather_data
+
+- **Type messages** and press **Enter** to send.
+- Press **Ctrl+C** to exit.
+
+
+## 7. Consume Messages from Kafka Topic
+
+docker exec -it docker-kafka-1 kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic openweather_data --from-beginning
+
+- **Displays all messages in `openweather_data`.**
+
+
+## 8. List All Kafka Consumer Groups
+
+docker exec -it docker-kafka-1 kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
+
+
+## 9. Describe a Consumer Group
+
+docker exec -it docker-kafka-1 kafka-consumer-groups.sh --bootstrap-server kafka:9092 --describe --group my_consumer_group
+
+
+## 10. Reset Consumer Group Offset
+
+docker exec -it docker-kafka-1 kafka-consumer-groups.sh --bootstrap-server kafka:9092 --reset-offsets --group my_consumer_group --topic openweather_data --to-earliest --execute
+
+- **Resets offsets to reconsume messages from the beginning.**
+
+
+## 11. Stop Kafka Broker in Docker
+
+docker stop docker-kafka-1
+
+
+## 12. Restart Kafka Broker in Docker
+
+docker restart docker-kafka-1
+
+
+## 13. Delete All Topics (Use with Caution)
+
+docker exec -it docker-kafka-1 kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic $(docker exec -it docker-kafka-1 kafka-topics.sh --bootstrap-server kafka:9092 --list)
+
+
