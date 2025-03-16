@@ -1,0 +1,91 @@
+wget https://dlcdn.apache.org/kafka/3.7.2/kafka_2.12-3.7.2.tgz
+tar -xvf kafka_2.12-3.7.2.tgz
+sudo yum install java
+java -version
+cd kafka_2.12-3.7.2
+ls
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M"
+cd kafka_2.12-3.7.2
+bin/kafka-server-start.sh config/server.properties
+
+listeners=PLAINTEXT://127.0.0.1:9092 (consumer)
+advertised.listeners=PLAINTEXT://127.0.0.1:9092,PLAINTEXT://<>:9092,PLAINTEXT://<>:9092, (producer)
+
+cd kafka_2.12-3.6.2
+
+bin/kafka-topics.sh --create --topic demo_testing --bootstrap-server 127.0.0.1:9092 --replication-factor 1 --partitions 1
+
+bin/kafka-topics.sh --list --bootstrap-server 127.0.0.1:9092 
+
+cd kafka_2.12-3.7.2
+
+#start Producer:
+
+bin/kafka-console-producer.sh --topic demo_testing --bootstrap-server 127.0.0.1:9092
+
+cd kafka_2.12-3.7.2
+
+#start Consumer:
+
+bin/kafka-console-consumer.sh --topic demo_testing --bootstrap-server 127.0.0.1:9092
+
+#Creating a topic
+
+bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 -create -topic my-topic -partitions 2 -replication-factor 2 	-config retention.ms=86400000 -config retention.bytes=1073741824 -if-not-exists
+	
+# To get details of a specific topic
+bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 -describe -topic demo_testing
+	
+# To produce message to a specific topic
+bin/kafka-console-producer.sh --bootstrap-server 127.0.0.1:9092 -topic demo_testing
+	
+# To list the topics
+bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 -list
+
+# To delete a topic
+bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 -delete -topic demo_testing1
+	
+# To consume messages from a topic
+bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 -topic demo_testing -from-beginning
+
+# To consume messages from a topic with limit
+bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 -topic my-topic -from-beginning -max-messages 5
+
+# To list all consumer groups
+bin/kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 -list
+
+# To get details of a specific consumer group
+bin/kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 -describe -group console-consumer-45081
+
+# To reset a consumer group's offsets to a specific timestamp
+bin/kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 -reset-offsets -to-datetime "2023-04-16T00:00:00.000" -group my-group -topic my-topic -execute
+
+# To delete a consumer group
+bin/kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 -delete -group my-group
+	
+# Get topic configuration
+bin/kafka-configs.sh --bootstrap-server 127.0.0.1:9092 -describe -entity-type topics -entity-name demo_testing
+	
+# List all configurations for all brokers:
+bin/kafka-configs.sh --bootstrap-server 127.0.0.1:9092 -entity-type brokers -describe
+
+# List specific configurations for a single broker
+bin/kafka-configs.sh --bootstrap-server 127.0.0.1:9092 -entity-type brokers -entity-name 0	-describe -all
+	
+# List all ACLs for a specific topic
+bin/kafka-acls.sh --bootstrap-server 127.0.0.1:9092 -list -topic demo_testing
+
+# Add a new ACL for a specific user to a specific topic
+bin/kafka-acls.sh --bootstrap-server 127.0.0.1:9092 -add -allow-principal User:myuser -operation Read -topic demo_testing
+
+# Remove an ACL for a specific user from a specific topic
+bin/kafka-acls.sh --bootstrap-server 127.0.0.1:9092 -remove -allow-principal User:myuser -operation Read -topic demo_testing
+
+# List all ACLs for a specific user
+bin/kafka-acls.sh --bootstrap-server 127.0.0.1:9092 -list -principal User:myuser
+
+# Add a new ACL for a specific user to a specific consumer group
+bin/kafka-acls.sh --bootstrap-server 127.0.0.1:9092 -add -allow-principal User:myuser -operation Read -group my-consumer-group
+	
