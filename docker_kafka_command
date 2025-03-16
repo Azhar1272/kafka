@@ -5,6 +5,8 @@
 - **Kafka Docker Container Name:** `docker-kafka-1`
 - **Bootstrap Server:** `kafka:9092` (inside Docker) / `localhost:9092` (outside Docker)
 
+## 0. create kafka instance in docker terminal
+docker exec -it docker-kafka-1 bash
 
 ## 1. Check if Kafka Container is Running
 
